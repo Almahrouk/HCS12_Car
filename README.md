@@ -130,6 +130,3 @@ MATLAB/Simulink was used to monitor and scale joystick values before transmissio
 ## ✅ Conclusion
 This project successfully demonstrated joystick-based robotic car control using an Arduino and an HCS12 microcontroller. The system combined UART communication, PWM motor control, GPIO direction control, and differential drive logic to achieve smooth and responsive movement.
 
----
-
-## 📂 Folder Structure (Suggested)
