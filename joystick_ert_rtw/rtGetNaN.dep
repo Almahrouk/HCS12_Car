@@ -1,0 +1,11 @@
+rtGetNaN.o: \
+ C:/Users/almah/Documents/GitHub/HCS12_Car/joystick_ert_rtw/rtGetNaN.c \
+ C:/Users/almah/Documents/GitHub/HCS12_Car/joystick_ert_rtw/rtwtypes.h \
+ C:/Users/almah/Documents/GitHub/HCS12_Car/joystick_ert_rtw/rtGetNaN.h \
+ C:/Users/almah/Documents/GitHub/HCS12_Car/joystick_ert_rtw/rt_nonfinite.h
+
+C:/Users/almah/Documents/GitHub/HCS12_Car/joystick_ert_rtw/rtwtypes.h:
+
+C:/Users/almah/Documents/GitHub/HCS12_Car/joystick_ert_rtw/rtGetNaN.h:
+
+C:/Users/almah/Documents/GitHub/HCS12_Car/joystick_ert_rtw/rt_nonfinite.h:

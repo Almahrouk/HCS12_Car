@@ -1,0 +1,5 @@
+ArduinoPinHandleMap.o: \
+ C:/ProgramData/MATLAB/SupportPackages/R2025b/toolbox/target/supportpackages/arduinobase/src/ArduinoPinHandleMap.cpp \
+ C:/Users/almah/Documents/GitHub/HCS12_Car/joystick_ert_rtw/rtwtypes.h
+
+C:/Users/almah/Documents/GitHub/HCS12_Car/joystick_ert_rtw/rtwtypes.h:

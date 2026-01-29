@@ -25,6 +25,10 @@ void Motor1_set(unsigned char dir, unsigned char speed); /* Right motor */
 void Motor2_set(unsigned char dir, unsigned char speed); /* Left motor  */
 unsigned char map_forward_backward(unsigned char fb_byte, unsigned char *dir_out);
 unsigned char map_left_right(unsigned char lr_byte, signed char *steer_sign_out);
+void SEG7_init(void);
+void SEG7_show_1(void);
+void SEG7_show_4(void);
+void SCI0_TxHex(unsigned char b);
 
 void main(void)
 {
@@ -41,12 +45,15 @@ void main(void)
 	unsigned char *msg1 = "Receiving 2 bytes: MSB0=F/B, MSB1=L/R\r\n.";
 
 	PLL_init();
+	SEG7_init();
 	SCI0_init();      /* Hyberterminal optional debug */
 	SCI1_init();      /* Arduino link */
 
 	/* Port B: PB0..PB3 output for motor direction */
-	DDRB |= 0x0F;
-	PORTB &= ~0x0F;
+	//DDRB |= 0x0F;
+	//PORTB &= ~0x0F;
+	DDRB |= 0x1E;      /* 0001 1110: PB1..PB4 outputs */
+	PORTB &= ~0x1E;
 	PWM_init_motors();
 	EnableInterrupts;
 	PrintStringSCI0(msg0);
@@ -58,11 +65,21 @@ void main(void)
 	{
 		/* Read one byte at a time; accept in any order */
 		rx = SCI1_Rx();
+		PrintStringSCI0((unsigned char*)"RX=0x");
+		SCI0_TxHex(rx);
+		SCI0_Tx('\r');
+		SCI0_Tx('\n');
+		
 		if((rx & 0x80) == 0x00)
+		{
 			b_fb = rx; /* forward/back */
+			SEG7_show_4();
+		}
 		else
+		{
 			b_lr = rx; /* left/right */
-
+			SEG7_show_1();
+		}
 		fb_speed = map_forward_backward(b_fb, &fb_dir);
 		steer_mag = map_left_right(b_lr, &steer_sign);
 		if(fb_dir == DIR_OFF)
@@ -177,6 +194,7 @@ unsigned char map_left_right(unsigned char lr_byte, signed char *steer_sign_out)
 /* ===================== Motor Control ===================== */
 
 /* Motor1 direction: PB0, PB1 */
+/*
 void Motor1_set(unsigned char dir, unsigned char speed)
 {
 	PORTB &= ~(0x03);
@@ -187,8 +205,20 @@ void Motor1_set(unsigned char dir, unsigned char speed)
 		PORTB |= 0x02;
 	PWMDTY0 = speed; 	  	// Set the Speed for Motor-1 PWM0 -> PP0
 }
+*/
+void Motor1_set(unsigned char dir, unsigned char speed)
+{
+  PORTB &= ~(0x06);         /* clear PB1,PB2 */
+  if(dir == DIR_OFF) { }
+  else if(dir == DIR_CW)    /* PB1=1, PB2=0 */
+    PORTB |= 0x02;
+  else                      /* PB1=0, PB2=1 */
+    PORTB |= 0x04;
 
+  PWMDTY0 = speed;
+}
 /* Motor2 direction: PB2, PB3 */
+/*
 void Motor2_set(unsigned char dir, unsigned char speed)
 {
 	PORTB &= ~(0x0C);
@@ -199,7 +229,18 @@ void Motor2_set(unsigned char dir, unsigned char speed)
 		PORTB |= 0x08;
 	PWMDTY1 = speed;        // Set the Speed for Motor-2 PWM1 -> PP1
 }
+*/
+void Motor2_set(unsigned char dir, unsigned char speed)
+{
+  PORTB &= ~(0x18);         /* clear PB3,PB4 */
+  if(dir == DIR_OFF) { }
+  else if(dir == DIR_CW)    /* PB3=1, PB4=0 */
+    PORTB |= 0x08;
+  else                      /* PB3=0, PB4=1 */
+    PORTB |= 0x10;
 
+  PWMDTY1 = speed;
+}
 /* ===================== PWM Init ===================== */
 void PWM_init_motors(void)
 {
@@ -270,9 +311,26 @@ void SCI1_init(void)
 //   SCI1DRL = myByte;
 // }
 
+
 // From Arduino to HCS12
 unsigned char SCI1_Rx(void)
 {
 	while(!(SCI1SR1 & 0x20));
 	return SCI1DRL;
+}
+void SEG7_init(void)
+{
+  DDRA = 0xFF;
+  PORTA = 0x00;
+}
+
+/* gfedcba (bit0=a ... bit6=g) */
+void SEG7_show_1(void) { PORTA = 0x06; }  /* b,c */
+void SEG7_show_4(void) { PORTA = 0x66; }  /* b,c,f,g */
+
+void SCI0_TxHex(unsigned char b)
+{
+  const char hex[] = "0123456789ABCDEF";
+  SCI0_Tx(hex[(b >> 4) & 0x0F]);
+  SCI0_Tx(hex[b & 0x0F]);
 }
